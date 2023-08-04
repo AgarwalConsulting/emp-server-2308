@@ -8,18 +8,22 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"algogrit.com/emp-server/employees/repository"
 	"algogrit.com/emp-server/entities"
 )
 
-var employees = []entities.Employee{
-	{1, "Gaurav", "LnD", 10001},
-	{2, "Anuj", "Cloud", 10002},
-	{3, "Misha", "SRE", 20002},
-}
+var empRepo = repository.NewInMem()
 
 func EmployeesIndexHandler(w http.ResponseWriter, req *http.Request) {
-	// fmt.Fprintln(w, employees)
 	w.Header().Set("content-type", "application/json")
+
+	employees, err := empRepo.ListAll()
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintln(w, err)
+		return
+	}
 
 	json.NewEncoder(w).Encode(employees)
 }
@@ -34,11 +38,16 @@ func EmployeeCreateHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	newEmp.ID = len(employees) + 1
-	employees = append(employees, newEmp)
+	createdEmp, err := empRepo.Create(newEmp)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintln(w, err)
+		return
+	}
 
 	w.Header().Set("content-type", "application/json")
-	json.NewEncoder(w).Encode(newEmp)
+	json.NewEncoder(w).Encode(createdEmp)
 }
 
 func LoggingMiddleware(h http.Handler) http.Handler {
