@@ -7,16 +7,11 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+
+	"algogrit.com/emp-server/entities"
 )
 
-type Employee struct {
-	ID         int    `json:"-"`
-	Name       string `json:"name"`
-	Department string `json:"speciality"`
-	ProjectID  int    `json:"project"`
-}
-
-var employees = []Employee{
+var employees = []entities.Employee{
 	{1, "Gaurav", "LnD", 10001},
 	{2, "Anuj", "Cloud", 10002},
 	{3, "Misha", "SRE", 20002},
@@ -30,7 +25,7 @@ func EmployeesIndexHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 func EmployeeCreateHandler(w http.ResponseWriter, req *http.Request) {
-	var newEmp Employee
+	var newEmp entities.Employee
 	err := json.NewDecoder(req.Body).Decode(&newEmp)
 
 	if err != nil {
