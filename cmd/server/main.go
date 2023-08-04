@@ -9,15 +9,17 @@ import (
 	"github.com/gorilla/mux"
 
 	"algogrit.com/emp-server/employees/repository"
+	"algogrit.com/emp-server/employees/service"
 	"algogrit.com/emp-server/entities"
 )
 
 var empRepo = repository.NewInMem()
+var empSvc = service.NewV1(empRepo)
 
 func EmployeesIndexHandler(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("content-type", "application/json")
 
-	employees, err := empRepo.ListAll()
+	employees, err := empSvc.Index()
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -38,7 +40,7 @@ func EmployeeCreateHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	createdEmp, err := empRepo.Create(newEmp)
+	createdEmp, err := empSvc.Create(newEmp)
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
